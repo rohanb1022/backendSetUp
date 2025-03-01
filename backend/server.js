@@ -15,7 +15,12 @@ import userRouter from "./routes/user.route.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173", // Allow requests only from frontend
+  credentials: true, // Allow cookies and authentication headers
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed request methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -24,8 +29,8 @@ app.get("/", (req, res) => {
   res.send("Its working!!");
 });
 
-app.use("/auth", authRouter);
-app.use("/user", userRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

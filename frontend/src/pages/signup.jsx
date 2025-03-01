@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAuthStore } from "../store/useAuthStore";
 
 export function SignupPage() {
   const [formData, setFormData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
   });
@@ -12,9 +14,24 @@ export function SignupPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const { signup, isSigningUp } = useAuthStore();
+
+  const validateForm = () => {
+    if (!formData.name.trim()) return toast.error("Full name is required");
+    if (!formData.email.trim()) return toast.error("Email is required");
+    if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
+    if (!formData.password) return toast.error("Password is required");
+    if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+
+    return true;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Signup Data:", formData);
+
+    const success = validateForm();
+
+    if (success === true) signup(formData);
   };
 
   return (
@@ -26,8 +43,8 @@ export function SignupPage() {
             <label className="block text-sm font-medium text-white">Full Name</label>
             <input
               type="text"
-              name="fullName"
-              value={formData.fullName}
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 bg-black text-white border-b border-white focus:border focus:border-white rounded-md focus:outline-none"
@@ -58,8 +75,8 @@ export function SignupPage() {
           <button
             type="submit"
             className="w-full bg-white text-black py-2 px-4 rounded-md hover:bg-gray-300 transition"
-          >
-            Sign Up
+            >
+              {isSigningUp ? "loading..." : "Signup"}
           </button>
         </form>
         <p className="text-white text-center mt-4">
